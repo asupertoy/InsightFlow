@@ -114,9 +114,6 @@ dmypy.json
 
 # Project specific
 docs/
-data/output/
-data/figures/
-data/logs/
-data/raw_cache/
+data/
 output/*
 __pycache__/

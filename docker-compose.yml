@@ -1,0 +1,35 @@
+
+services:
+  vllm:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/vllm/vllm-openai:latest
+    container_name: insightflow-vllm
+    # runtime: nvidia  # 移除，因为 runtime 不支持 nvidia
+    
+    environment:
+      - HF_ENDPOINT=https://hf-mirror.com  # 使用 Hugging Face 镜像加速模型下载
+      - HUGGINGFACE_HUB_CACHE=/root/.cache/huggingface
+    
+    volumes:
+      - /home/metaiot/data/liucong/huggingface:/root/.cache/huggingface
+    ports:
+      - "8000:8000"
+    ipc: host # 解决多卡通信内存共享问题
+    network_mode: bridge  # 确保网络访问
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+              
+    command: >
+      --model Qwen/Qwen2.5-14B-Instruct-AWQ
+      --quantization awq
+      --dtype half
+      --max-model-len 4096
+      --gpu-memory-utilization 0.9
+      --served-model-name qwen2.5-14b
+      --api-key EMPTY
+
